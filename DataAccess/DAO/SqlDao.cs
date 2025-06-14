@@ -67,13 +67,41 @@ namespace DataAccess.DAO
         }
 
         // Metodo para la ejecución de stored procedures con retorno de datos.
-
-        public List<Dictionary<string, object>> ExecuteQueryProcedure(SqlOperation operation)
+        public List<Dictionary<string, object>> ExecuteQueryProcedure(SqlOperation sqlOperation)
         {
-            // Conectarse a la base de datos y ejecutar el stored procedure, capturar el resultado y convertirlo en DTOs
-            // Actualmente no implementado, solo retorna una lista vacía.
-            var list = new List<Dictionary<string, object>>();
-            return list;
+            var lstResults = new List<Dictionary<string, object>>();
+
+            using (var conn = new SqlConnection(_connectionString))
+            using (var command = new SqlCommand(sqlOperation.ProcedureName, conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            })
+            {
+                foreach (var param in sqlOperation.Parameters)
+                {
+                    command.Parameters.Add(param);
+                }
+                // SP
+                conn.Open();
+
+                using var reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        var rowDict = new Dictionary<string, object>();
+                        for (var index = 0; index < reader.FieldCount; index++)
+                        {
+                            var key = reader.GetName(index);
+                            var value = reader.GetValue(index);                         
+                            rowDict[key] = value;
+                        }
+                        lstResults.Add(rowDict);
+                    }
+                }
+            }
+
+            return lstResults;
         }
     }
 }
