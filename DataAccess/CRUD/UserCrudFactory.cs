@@ -7,15 +7,12 @@ namespace DataAccess.CRUD
 {
     public class UserCrudFactory : CrudFactory
     {
-        public UserCrudFactory()
-            => _sqlDao = SqlDao.GetInstance();
-
         public override void Create(BaseDTO entity)
         {
             if (entity is not User user)
-                throw new ArgumentException(nameof(entity));
+                throw new ArgumentException("Se esperaba un User", nameof(entity));
 
-            var op = new SqlOperation { ProcedureName = "CRE_USER_PR" };
+            var op = new SqlOperation("CRE_USER_PR");
             op.AddStringParameter("P_UserCode", user.UserCode);
             op.AddStringParameter("P_Name", user.Name);
             op.AddStringParameter("P_Email", user.Email);
@@ -23,7 +20,7 @@ namespace DataAccess.CRUD
             op.AddDateTimeParam("P_BirthDate", user.BirthDate);
             op.AddStringParameter("P_Status", user.Status);
 
-            _sqlDao.ExecuteProcedure(op);
+            Dao.ExecuteProcedure(op);
         }
 
         public override void Delete(BaseDTO entity)
@@ -37,10 +34,10 @@ namespace DataAccess.CRUD
 
         public override T RetrieveById<T>(int id)
         {
-            var op = new SqlOperation { ProcedureName = "RET_USER_BY_ID_PR" };
+            var op = new SqlOperation("RET_USER_BY_ID_PR");
             op.AddIntParam("P_Id", id);
 
-            var rows = _sqlDao.ExecuteQueryProcedure(op);
+            var rows = Dao.ExecuteQueryProcedure(op);
             if (rows.Count == 0)
                 return default;
 
@@ -50,11 +47,13 @@ namespace DataAccess.CRUD
         public override IList<T> RetrieveAll<T>()
         {
             var list = new List<T>();
-            var rows = _sqlDao.ExecuteQueryProcedure(
-                new SqlOperation { ProcedureName = "RET_ALL_USER_PR" });
+            var op = new SqlOperation("RET_ALL_USER_PR");
+            var rows = Dao.ExecuteQueryProcedure(op);
 
             foreach (var row in rows)
+            {
                 list.Add((T)Convert.ChangeType(BuildUser(row), typeof(T)));
+            }
 
             return list;
         }

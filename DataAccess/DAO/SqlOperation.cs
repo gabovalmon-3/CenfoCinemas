@@ -7,40 +7,36 @@ using Microsoft.Data.SqlClient;
 
 namespace DataAccess.DAO
 {
-
     /*
-     * clase con instrucciones de lo que tiene que hacer el sql dao
+     * Clase que define una operación SQL basada en stored procedures.
      */
-
     public class SqlOperation
     {
 
-        public string ProcedureName { get; set; }
+        public string ProcedureName { get; set; } = string.Empty;
         public List<SqlParameter> Parameters { get; set; }
+
+
         public SqlOperation()
         {
             Parameters = new List<SqlParameter>();
         }
 
-        public void AddStringParameter(string ParamName, string ParamValue)
+        public SqlOperation(string procedureName) : this()
         {
-            Parameters.Add(new SqlParameter(ParamName, ParamValue));
+            ProcedureName = procedureName;
         }
+
+        public void AddStringParameter(string ParamName, string ParamValue)
+            => Parameters.Add(new SqlParameter(ParamName, ParamValue));
 
         public void AddIntParam(string paramName, int paramValue)
-        {
-            Parameters.Add(new SqlParameter(paramName, paramValue));
-        }
+            => Parameters.Add(new SqlParameter(paramName, paramValue));
 
         public void AddDoubleParam(string paramName, double paramValue)
-        {
-            Parameters.Add(new SqlParameter(paramName, paramValue));
-        }
+            => Parameters.Add(new SqlParameter(paramName, paramValue));
 
         public void AddDateTimeParam(string paramName, DateTime paramValue)
-        {
-            Parameters.Add(new SqlParameter(paramName, paramValue));
-        }
-
+            => Parameters.Add(new SqlParameter(paramName, paramValue));
     }
 }

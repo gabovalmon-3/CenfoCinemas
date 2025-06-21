@@ -7,9 +7,6 @@ namespace DataAccess.CRUD
 {
     public sealed class MovieCrudFactory : CrudFactory
     {
-        public MovieCrudFactory()
-            => _sqlDao = SqlDao.GetInstance();
-
         #region Create / Delete / Update
 
         public override void Create(BaseDTO baseDto)
@@ -17,14 +14,14 @@ namespace DataAccess.CRUD
             if (baseDto is not Movie movie)
                 throw new ArgumentException("Se esperaba un Movie", nameof(baseDto));
 
-            var op = new SqlOperation("CRE_MOVIE_PR")
-                .AddStringParameter("P_Title", movie.Title)
-                .AddStringParameter("P_Description", movie.Description)
-                .AddDateTimeParam("P_ReleaseDate", movie.ReleaseDate)
-                .AddStringParameter("P_Genre", movie.Genre)
-                .AddStringParameter("P_Director", movie.Director);
+            var op = new SqlOperation("CRE_MOVIE_PR");
+            op.AddStringParameter("P_Title", movie.Title);
+            op.AddStringParameter("P_Description", movie.Description);
+            op.AddDateTimeParam("P_ReleaseDate", movie.ReleaseDate);
+            op.AddStringParameter("P_Genre", movie.Genre);
+            op.AddStringParameter("P_Director", movie.Director);
 
-            _sqlDao.ExecuteProcedure(op);
+            Dao.ExecuteProcedure(op);
         }
 
         public override void Delete(BaseDTO baseDto)
@@ -42,21 +39,21 @@ namespace DataAccess.CRUD
 
         public override T RetrieveById<T>(int id)
         {
-            var op = new SqlOperation("RET_MOVIE_BY_ID_PR")
-                .AddIntParam("P_Id", id);
+            var op = new SqlOperation("RET_MOVIE_BY_ID_PR");
+            op.AddIntParam("P_Id", id);
 
-            var rows = _sqlDao.ExecuteQueryProcedure(op);
+            var rows = Dao.ExecuteQueryProcedure(op);
             if (rows.Count == 0)
                 return default;
 
             return (T)Convert.ChangeType(BuildMovie(rows[0]), typeof(T));
         }
 
-        public override List<T> RetrieveAll<T>()
+        public override IList<T> RetrieveAll<T>()
         {
             var list = new List<T>();
-            var rows = _sqlDao.ExecuteQueryProcedure(
-                new SqlOperation("RET_ALL_MOVIE_PR"));
+            var op = new SqlOperation("RET_ALL_MOVIE_PR");
+            var rows = Dao.ExecuteQueryProcedure(op);
 
             foreach (var row in rows)
             {
