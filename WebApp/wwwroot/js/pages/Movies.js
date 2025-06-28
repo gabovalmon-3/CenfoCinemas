@@ -20,7 +20,7 @@ function MoviesViewController() {
     this.LoadTable = function () {
 
         // URL del servicio API para obtener las peliculas
-        //https://localhost:7216/api/Movie/RetrieveAll
+        //https://localhost:7191/api/Movie/RetrieveAll
 
         var ca = new ControlActions();
         var service = this.ApiEndPointName + "/RetrieveAll"
@@ -28,16 +28,6 @@ function MoviesViewController() {
         var urlService = ca.GetUrlApiService(service);
 
         /**
-            {
-                "title": "Coraline y la puerta secreta",
-                "description": "Una niña descubre una puerta secreta en su nueva casa y entra a una realidad alterna que la refleja fielmente de muchas formas",
-                "releaseDate": "2009-02-06T00:00:00",
-                "genre": "Animación",
-                "director": "Henry Selick",
-                "id": 1,
-                "created": "2025-06-14T20:13:50.13",
-                "updated": "0001-01-01T00:00:00"
-            }
 
                 <tr>
                      <th>Title</th>

@@ -19,36 +19,36 @@ function UsersViewController() {
 
     this.LoadTable = function () {
 
-        // URL del servicio API para obtener los usuarios
-        //https://localhost:7216/api/User/RetrieveAll
+        // URL del servicio API para obtener usuarios
+        //https://localhost:7191/api/User/RetrieveAll
 
         var ca = new ControlActions();
         var service = this.ApiEndPointName + "/RetrieveAll"
 
         var urlService = ca.GetUrlApiService(service);
 
-        /**
-            {
-            "userCode": "fzunigav",
-            "name": "Fabiola Zúñiga",
-            "email": "fzunigav@ucenfotec.ac.cr",
-            "password": "Test123!",
-            "birthDate": "2000-06-08T00:00:00",
-            "status": "Active",
-            "id": 1,
-            "created": "2025-06-22T03:43:31.523",
-            "updated": "0001-01-01T00:00:00"
-            }
-
-            <tr>
-                  <th>Id</th>
-                  <th>User Code</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Birth Date</th>
-                  <th>Status</th>
-            </tr>
-         */
+        /*[
+  {
+    "userCode": "gvalverde",
+    "name": "Gabriel",
+    "email": "gvalverdem@ucenfotec.ac.cr",
+    "password": "Cenfotec123!",
+    "birthDate": "2005-03-28T00:00:00",
+    "status": "AC",
+    "id": 1,
+    "created": "2025-06-28T00:12:02.477",
+    "updated": "0001-01-01T00:00:00"
+  }
+]
+                    <tr>
+                        <th>Id</th>
+                        <th>User Code</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Birth Date</th>
+                        <th>Status</th>
+                    </tr>
+        */ 
 
         var columns = [];
         columns[0] = { 'data': 'id' }
