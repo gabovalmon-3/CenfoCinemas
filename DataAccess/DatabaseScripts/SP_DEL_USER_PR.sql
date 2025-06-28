@@ -1,0 +1,10 @@
+﻿CREATE PROCEDURE DEL_USER_PR
+    @P_Id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DELETE FROM dbo.TBL_User
+    WHERE Id = @P_Id;
+END
+GO

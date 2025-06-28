@@ -1,5 +1,4 @@
-﻿-- SP que crea un usuario
-CREATE PROCEDURE CRE_USER_PR
+﻿CREATE PROCEDURE CRE_USER_PR
 	@P_UserCode nvarchar(30), 
 	@P_Name nvarchar(50),
 	@P_Email nvarchar(30),

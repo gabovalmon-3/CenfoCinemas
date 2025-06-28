@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace WebAPI.Controllers
 {
-    // Indicamos que la direccion de este controlador será https://servidor:puerto/api/User
+    // Especificamos la ruta base de este controlador: https://servidor:puerto/api/Movie
     [Route("api/[controller]")]
     [ApiController]
     public class MovieController : ControllerBase
@@ -54,7 +54,7 @@ namespace WebAPI.Controllers
                 var mm = new MovieManager();
                 var result = mm.RetrieveById(id);
                 if (result == null)
-                    return NotFound($"Película con ID {id} no encontrada.");
+                    return NotFound($"No existe película con ID {id}.");
                 return Ok(result);
             }
             catch (Exception ex)
@@ -72,7 +72,7 @@ namespace WebAPI.Controllers
                 var mm = new MovieManager();
                 var movie = mm.RetrieveByTitle(title);
                 if (movie == null)
-                    return NotFound($"No se encontró la película con título '{title}'.");
+                    return NotFound($"No se halló película con título '{title}'.");
                 return Ok(movie);
 
             }
@@ -84,46 +84,31 @@ namespace WebAPI.Controllers
 
         [HttpPut]
         [Route("Update")]
-        public ActionResult Update(int id, Movie movie)
+        public ActionResult Update(Movie movie)
         {
             try
             {
-                if (movie.Id != 0 && movie.Id != id)
-                    return BadRequest("El Id de la ruta y del cuerpo no coinciden.");
-
-                movie.Id = id;
-
                 var mm = new MovieManager();
                 var updated = mm.Update(movie);
                 return Ok(updated);
-            }
-            catch (KeyNotFoundException knf)
-            {
-                return NotFound(knf.Message);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
+
         }
 
         [HttpDelete]
         [Route("Delete")]
-        public ActionResult Delete(int id)
+        public ActionResult Delete(Movie movie)
         {
             try
             {
                 var mm = new MovieManager();
-                var result = mm.RetrieveById(id);
-                if (result == null)
-                {
-                    return NotFound($"Película con ID {id} no encontrada.");
-                }
-                else
-                {
-                    mm.Delete(id);
-                    return Ok(new { Message = $"Película con ID {id} eliminada con éxito." });
-                }
+                var result = mm.RetrieveById(movie.Id);
+                mm.Delete(movie.Id);
+                return Ok(new { Message = $"Película con ID {movie.Id} fue borrada exitosamente." });
 
             }
             catch (Exception ex)

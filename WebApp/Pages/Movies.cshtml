@@ -16,6 +16,7 @@
             <table id="tblMovies" class="display" style="width:100%">
                 <thead>
                     <tr>
+                        <th>Id</th>
                         <th>Title</th>
                         <th>Description</th>
                         <th>Release Date</th>
@@ -25,6 +26,56 @@
                 </thead>
             </table>
 
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="bs-component">
+
+                <form>
+                    <fielset>
+                        <legend>Movie Form</legend>
+
+                        <div class="form-group">
+                            <label for="txtId" class="form-label mt-4">Movie ID</label>
+                            <input id="txtId" readonly type="number" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="txtTitle" class="form-label mt-4">Title</label>
+                            <input id="txtTitle" type="text" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="txtDescription" class="form-label mt-4">Description</label>
+                            <input id="txtDescription" type="text" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="txtRDate" class="form-label mt-4">Release Date</label>
+                            <input id="txtRDate" type="date" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="txtGenre" class="form-label mt-4">Genre</label>
+                            <input id="txtGenre" type="text" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="txtDirector" class="form-label mt-4">Director</label>
+                            <input id="txtDirector" type="text" class="form-control">
+                        </div>
+
+                    </fielset>
+                </form>
+
+                <br />
+                <button id="btnCreate" class="source-button btn btn-primary btn-xs" type="button">Save</button>
+                <button id="btnUpdate" class="source-button btn btn-info btn-xs" type="button">Update</button>
+                <button id="btnDelete" class="source-button btn btn-danger btn-xs" type="button">Delete</button>
+
+            </div>
         </div>
     </div>
 
