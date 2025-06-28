@@ -1,6 +1,6 @@
 function ControlActions() {
 	//Ruta base del API
-	this.URL_API = "https://localhost:7216/api/";
+	this.URL_API = "https://localhost:7191/api/";
 
 	this.GetUrlApiService = function (service) {
 		return this.URL_API + service;
@@ -24,8 +24,8 @@ function ControlActions() {
 				obj.data = value;
 				arrayColumnsData.push(obj);
 			});
-			//Esto es la inicializacion de la tabla de data tables segun la documentacion de 
-			// datatables.net, carga la data usando un request async al API
+
+
 			$('#' + tableId).DataTable({
 				"processing": true,
 				"ajax": {
@@ -35,7 +35,7 @@ function ControlActions() {
 				"columns": arrayColumnsData
 			});
 		} else {
-			//RECARGA LA TABLA
+
 			$('#' + tableId).DataTable().ajax.reload();
 		}
 
@@ -68,7 +68,7 @@ function ControlActions() {
 	}
 
 
-	/* ACCIONES VIA AJAX, O ACCIONES ASINCRONAS*/
+
 
 	this.PostToAPI = function (service, data, callBackFunction) {
 
