@@ -41,7 +41,7 @@ function UsersViewController() {
     this.LoadTable = function () {
 
         // URL del servicio API para obtener los usuarios
-        //https://localhost:7191/api/User/RetrieveAll
+        //https://localhost:9171/api/User/RetrieveAll
 
         var ca = new ControlActions();
         var service = this.ApiEndPointName + "/RetrieveAll"
@@ -109,15 +109,16 @@ function UsersViewController() {
             $('#txtBDate').val(onlyDate[0]);
         })
     }
-    // Función para enviar un nuevo usuario al servidor
+    // Método para crear un nuevo usuario
+
     this.Create = function () {
         var userDTO = {};
-        // Propiedades iniciales definidas por el servidor
-        userDTO.id = 0;
+        // Atributos con valores default que son controlados por el API
+        userDTO.id = 0; // El API lo maneja como autoincremental
         userDTO.created = "2025-01-01";
         userDTO.updated = "2025-01-01";
 
-        // Datos recogidos del formulario
+        // Atributo que son capturados en pantalla
         userDTO.userCode = $('#txtUserCode').val();
         userDTO.name = $('#txtName').val();
         userDTO.email = $('#txtEmail').val();
@@ -125,25 +126,27 @@ function UsersViewController() {
         userDTO.birthDate = $('#txtBDate').val();
         userDTO.password = $('#txtPass').val();
 
-        // Invoca al endpoint para crear el usuario
+        // Enviar la data al API para crear el usuario
         var ca = new ControlActions();
         var urlService = this.ApiEndPointName + "/Create";
 
         ca.PostToAPI(urlService, userDTO, function () {
-            // Refresca la tabla de usuarios después de guardar
+            // Recargar la tabla de usuarios
             $('#tblUsers').DataTable().ajax.reload();
         });
-    };
 
-    // Función que envía los cambios de un usuario existente
+    }
+
+    // Método para editar un usuario existente (por implementar)
     this.Update = function () {
+
         var userDTO = {};
-        // Identificador y marcas de tiempo gestionados por el servidor
+        // Atributos con valores default que son controlados por el API
         userDTO.id = $('#txtId').val();
         userDTO.created = "2025-01-01";
         userDTO.updated = "2025-01-01";
 
-        // Valores actualizados del formulario
+        // Atributo que son capturados en pantalla
         userDTO.userCode = $('#txtUserCode').val();
         userDTO.name = $('#txtName').val();
         userDTO.email = $('#txtEmail').val();
@@ -151,25 +154,25 @@ function UsersViewController() {
         userDTO.birthDate = $('#txtBDate').val();
         userDTO.password = $('#txtPass').val();
 
-        // Llama al endpoint de actualización
+        // Enviar la data al API para crear el usuario
         var ca = new ControlActions();
         var urlService = this.ApiEndPointName + "/Update";
 
         ca.PutToAPI(urlService, userDTO, function () {
-            // Vuelve a cargar la tabla de usuarios tras actualizar
+            // Recargar la tabla de usuarios
             $('#tblUsers').DataTable().ajax.reload();
         });
     };
 
-    // Función para eliminar un usuario existente
     this.Delete = function () {
+
         var userDTO = {};
-        // Identificador y marcas de tiempo gestionados por el servidor
-        userDTO.id = $('#txtId').val();
+        // Atributos con valores default que son controlados por el API
+        userDTO.id = $('#txtId').val(); // El API lo maneja como autoincremental
         userDTO.created = "2025-01-01";
         userDTO.updated = "2025-01-01";
 
-        // Recogemos los datos del formulario (si fueran necesarios)
+        // Atributo que son capturados en pantalla
         userDTO.userCode = $('#txtUserCode').val();
         userDTO.name = $('#txtName').val();
         userDTO.email = $('#txtEmail').val();
@@ -177,18 +180,22 @@ function UsersViewController() {
         userDTO.birthDate = $('#txtBDate').val();
         userDTO.password = $('#txtPass').val();
 
-        // Llama al endpoint para eliminar el usuario
+        // Enviar la data al API para crear el usuario
         var ca = new ControlActions();
         var urlService = this.ApiEndPointName + "/Delete";
 
         ca.DeleteToAPI(urlService, userDTO, function () {
-            // Actualiza la vista tras la eliminación
+            // Recargar la tabla de usuarios
             $('#tblUsers').DataTable().ajax.reload();
         });
     };
 
-    $(document).ready(function () {
-        // Inicializar controlador cuando el DOM esté listo
-        var vc = new UsersViewController();
-        vc.initView();
-    });
+}
+
+$(document).ready(function () {
+
+    // Crear una instancia de la clase UsersViewController y llamar al método initView
+    var vc = new UsersViewController();
+    vc.initView();
+
+});
