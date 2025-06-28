@@ -1,168 +1,182 @@
-// JavaScript encargado de gestionar toda la lógica de la página de películas
-// Definimos una clase usando prototipos
+// JS que maneja todo el comportamiento de la página de movies
+// Definir una clase JS, usando prototype
 
 function MoviesViewController() {
 
     this.ViewName = "Movies";
     this.ApiEndPointName = "Movie";
 
-    // Función de inicialización
+    //Metodo constructor
 
     this.initView = function () {
 
-        console.log("Movie init view --> OK");
-        // Cargamos la tabla con los datos de las películas
+        console.log("Movie init view --> Ok");
+        // Llamar al método para llenar la tabla de peliculas
         this.LoadTable();
 
-        // Configuramos el botón Crear para invocar la creación de película
+        // Asignar el evento click al botón de crear la pelicula
         $('#btnCreate').click(function () {
+            // Llamar al método para crear una pelicula
             var vc = new MoviesViewController();
             vc.Create();
         });
 
-        // Configuramos el botón Actualizar para invocar la modificación de película
+        // Asignar el evento click al botón de editar la pelicula
         $('#btnUpdate').click(function () {
+            // Llamar al método para actualizar una pelicula
             var vc = new MoviesViewController();
             vc.Update();
         });
 
-        // Configuramos el botón Eliminar para invocar la eliminación de película
+        // Asignar el evento click al botón de eliminar la pelicula
         $('#btnDelete').click(function () {
+            // Llamar al método para eliminar una pelicula
             var vc = new MoviesViewController();
             vc.Delete();
         });
     };
 
-    // Método que llena la tabla de películas
+    // Método para llenar la tabla de peliculas
 
     this.LoadTable = function () {
 
-        // Endpoint para obtener todas las películas
-        // https://localhost:7191/api/Movie/RetrieveAll
+        // URL del servicio API para obtener las peliculas
+        //https://localhost:7191/api/Movie/RetrieveAll
 
         var ca = new ControlActions();
-        var service = this.ApiEndPointName + "/RetrieveAll";
+        var service = this.ApiEndPointName + "/RetrieveAll"
+
         var urlService = ca.GetUrlApiService(service);
 
-        /*
-            Estructura de cabeceras esperada:
-            <tr>
-                <th>ID</th>
-                <th>Título</th>
-                <th>Descripción</th>
-                <th>Fecha de Estreno</th>
-                <th>Género</th>
-                <th>Director</th>
-            </tr>
-        */
+        /**
+         * 
+                <tr>
+                     <th>Title</th>
+                     <th>Description</th>
+                     <th>Release Date</th>
+                     <th>Genre</th>
+                     <th>Director</th>
+                </tr>
+         */
 
-        var columns = [
-            { data: 'id' },
-            { data: 'title' },
-            { data: 'description' },
-            { data: 'releaseDate' },
-            { data: 'genre' },
-            { data: 'director' }
-        ];
+        var columns = [];
+        columns[0] = { 'data': 'id' };
+        columns[1] = { 'data': 'title' }
+        columns[2] = { 'data': 'description' }
+        columns[3] = { 'data': 'releaseDate' }
+        columns[4] = { 'data': 'genre' }
+        columns[5] = { 'data': 'director' }
 
-        // Inicializamos DataTable para mostrar las películas de forma dinámica
+        // Invocamos a DataTable para llenar la tabla de peliculas más robusta
         $('#tblMovies').DataTable({
-            ajax: {
+            "ajax": {
                 url: urlService,
-                dataSrc: ""
+                "dataSrc": ""
             },
             columns: columns
         });
 
-        // Cuando se hace clic en una fila, rellenamos el formulario con esos datos
+        // Asignar eventos de carga de datos o binding según el click en la tabla
+
         $('#tblMovies tbody').on('click', 'tr', function () {
-            var movieDTO = $('#tblMovies').DataTable().row(this).data();
+            //Extraemos la fila seleccionada
+            var row = $(this).closest('tr');
+            // Extraemos el DTO, esto nos devuelve el JSON de la pelicula seleccionado por la pelicula
+            // Segun la data devuela por el API
+            var movieDTO = $('#tblMovies').DataTable().row(row).data();
+            // Binding con el form
             $('#txtId').val(movieDTO.id);
             $('#txtTitle').val(movieDTO.title);
             $('#txtDescription').val(movieDTO.description);
             $('#txtGenre').val(movieDTO.genre);
             $('#txtDirector').val(movieDTO.director);
 
-            // Formateamos la fecha para mostrar solo la parte de día
-            var datePart = movieDTO.releaseDate.split('T')[0];
-            $('#txtRDate').val(datePart);
-        });
-    };
+            // La fecha tiene un formato
+            var onlyDate = movieDTO.releaseDate.split('T');
+            $('#txtRDate').val(onlyDate[0]);
+        })
+    }
 
-    // Método para enviar al API una nueva película
+    // Método para crear una nueva pelicula
 
     this.Create = function () {
         var movieDTO = {};
-        // Valores predeterminados gestionados por el servidor
-        movieDTO.id = 0;
+        // Atributos con valores default que son controlados por el API
+        movieDTO.id = 0; // El API lo maneja como autoincremental
         movieDTO.created = "2025-01-01";
         movieDTO.updated = "2025-01-01";
 
-        // Recogemos los datos del formulario
+        // Atributo que son capturados en pantalla
         movieDTO.title = $('#txtTitle').val();
         movieDTO.description = $('#txtDescription').val();
         movieDTO.genre = $('#txtGenre').val();
         movieDTO.director = $('#txtDirector').val();
         movieDTO.releaseDate = $('#txtRDate').val();
 
-        // Llamada al endpoint de creación
+        // Enviar la data al API para crear la pelicula
         var ca = new ControlActions();
         var urlService = this.ApiEndPointName + "/Create";
 
         ca.PostToAPI(urlService, movieDTO, function () {
-            // Volvemos a cargar la tabla tras exitoso guardado
+            // Recargar la tabla de peliculas
             $('#tblMovies').DataTable().ajax.reload();
         });
-    };
+    }
 
-    // Método para actualizar una película existente
-
+    // Método para editar una pelicula existente (por implementar)
     this.Update = function () {
+
         var movieDTO = {};
-        // ID y fechas de control
+        // Atributos con valores default que son controlados por el API
         movieDTO.id = $('#txtId').val();
         movieDTO.created = "2025-01-01";
         movieDTO.updated = "2025-01-01";
 
-        // Nuevos valores del formulario
+        // Atributo que son capturados en pantalla
         movieDTO.title = $('#txtTitle').val();
         movieDTO.description = $('#txtDescription').val();
         movieDTO.genre = $('#txtGenre').val();
         movieDTO.director = $('#txtDirector').val();
         movieDTO.releaseDate = $('#txtRDate').val();
 
-        // Llamada al endpoint de actualización
+        // Enviar la data al API para crear la pelicula
         var ca = new ControlActions();
         var urlService = this.ApiEndPointName + "/Update";
 
         ca.PutToAPI(urlService, movieDTO, function () {
-            // Refrescamos la tabla con los cambios
+            // Recargar la tabla de peliculas
             $('#tblMovies').DataTable().ajax.reload();
         });
     };
 
-    // Método para borrar una película
-
     this.Delete = function () {
+
         var movieDTO = {};
-        // ID y seguimiento de la entidad
+        // Atributos con valores default que son controlados por el API
         movieDTO.id = $('#txtId').val();
         movieDTO.created = "2025-01-01";
         movieDTO.updated = "2025-01-01";
 
-        // Llamada al endpoint de eliminación
+        // Atributo que son capturados en pantalla
+        movieDTO.title = $('#txtTitle').val();
+        movieDTO.description = $('#txtDescription').val();
+        movieDTO.genre = $('#txtGenre').val();
+        movieDTO.director = $('#txtDirector').val();
+        movieDTO.releaseDate = $('#txtRDate').val();
+
+        // Enviar la data al API para crear la pelicula
         var ca = new ControlActions();
         var urlService = this.ApiEndPointName + "/Delete";
 
         ca.DeleteToAPI(urlService, movieDTO, function () {
-            // Actualizamos la tabla después de borrar
+            // Recargar la tabla de peliculas
             $('#tblMovies').DataTable().ajax.reload();
         });
     };
 }
 
-// Inicializamos la vista cuando el documento está listo
 $(document).ready(function () {
     var vc = new MoviesViewController();
     vc.initView();
-});
+
+})
