@@ -10,38 +10,72 @@ namespace CoreApp
 {
     public class MovieManager : BaseManager
     {
+        /*
+         * Metodo para la creacion de una pelicula
+         * Valida que el título de la película no exista en la base de datos
+         */
+
         public void Create(Movie movie)
         {
             try
             {
-                var repo = new MovieCrudFactory();
+                var mCrud = new MovieCrudFactory();
+                var mExist = mCrud.RetrieveByTitle<Movie>(movie);
 
-                // Buscamos duplicados en toda la lista
-                var duplicate = repo
-                    .RetrieveAll<Movie>()
-                    .FirstOrDefault(m => m.Title.Equals(movie.Title, StringComparison.OrdinalIgnoreCase));
+                if (mExist == null)
+                {
+                    mCrud.Create(movie);
 
-                if (duplicate != null)
-                    throw new Exception("Ya existe una película con ese título.");
+                    // Aqui se llama a todos los usuarios para enviar un email diciendo que hay una nueva pelicula:
 
-                // Insertamos la nueva
-                repo.Create(movie);
-
-                // Recuperamos todos los usuarios y convertimos a List<User>
-                var users = new UserCrudFactory()
-                                .RetrieveAll<User>()
-                                .ToList();
-
-                // Enviamos notificación
-                var emailer = new EmailManager();
-                emailer.SendNewMovie(movie.Title, users)
-                       .GetAwaiter()
-                       .GetResult();
+                }
+                else
+                {
+                    throw new Exception("El título de la película ya existe. Por favor, ingrese otro título.");
+                }
             }
             catch (Exception ex)
             {
                 ManageException(ex);
             }
+        }
+
+        public List<Movie> RetrieveAll()
+        {
+            var mCrud = new MovieCrudFactory();
+            return mCrud.RetrieveAll<Movie>();
+        }
+
+        public Movie RetrieveById(int id)
+        {
+            var mCrud = new MovieCrudFactory();
+            return mCrud.RetrieveById<Movie>(id);
+        }
+
+        public Movie RetrieveByTitle(Movie movie)
+        {
+            var mCrud = new MovieCrudFactory();
+            return mCrud.RetrieveByTitle<Movie>(movie);
+        }
+
+        public Movie RetrieveByTitle(string title)
+        {
+
+            var dto = new Movie { Title = title };
+            return RetrieveByTitle(dto);
+        }
+
+        public Movie Update(Movie movie)
+        {
+            var mCrud = new MovieCrudFactory();
+            mCrud.Update(movie);
+            return RetrieveById(movie.Id);
+        }
+
+        public void Delete(int id)
+        {
+            var mCrud = new MovieCrudFactory();
+            mCrud.Delete(new Movie { Id = id });
         }
     }
 }

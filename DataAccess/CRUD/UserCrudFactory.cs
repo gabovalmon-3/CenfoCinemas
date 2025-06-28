@@ -2,72 +2,154 @@ using DataAccess.DAO;
 using DTOs;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace DataAccess.CRUD
 {
     public class UserCrudFactory : CrudFactory
     {
-        public override void Create(BaseDTO entity)
+        public UserCrudFactory()
         {
-            if (entity is not User user)
-                throw new ArgumentException("Se esperaba un User", nameof(entity));
-
-            var op = new SqlOperation("CRE_USER_PR");
-            op.AddStringParameter("P_UserCode", user.UserCode);
-            op.AddStringParameter("P_Name", user.Name);
-            op.AddStringParameter("P_Email", user.Email);
-            op.AddStringParameter("P_Password", user.Password);
-            op.AddDateTimeParam("P_BirthDate", user.BirthDate);
-            op.AddStringParameter("P_Status", user.Status);
-
-            Dao.ExecuteProcedure(op);
+            _sqlDao = SqlDao.GetInstance();
         }
 
-        public override void Delete(BaseDTO entity)
-            => throw new NotImplementedException();
+        public override void Create(BaseDTO baseDTO)
+        {
+            var user = baseDTO as User;
 
-        public override void Update(BaseDTO entity)
-            => throw new NotImplementedException();
+            var sqlOperation = new SqlOperation() { ProcedureName = "CRE_USER_PR" };
 
-        public override T Retrieve<T>()
-            => throw new NotImplementedException();
+            sqlOperation.AddStringParameter("P_UserCode", user.UserCode);
+            sqlOperation.AddStringParameter("P_Name", user.Name);
+            sqlOperation.AddStringParameter("P_Email", user.Email);
+            sqlOperation.AddStringParameter("P_Password", user.Password);
+            sqlOperation.AddDateTimeParam("P_BirthDate", user.BirthDate);
+            sqlOperation.AddStringParameter("P_Status", user.Status);
+
+            _sqlDao.ExecuteProcedure(sqlOperation);
+
+        }
+
+        public override List<T> RetrieveAll<T>()
+        {
+            var lstUsers = new List<T>();
+
+            var sqlOperation = new SqlOperation() { ProcedureName = "RET_ALL_USER_PR" };
+
+            var lstResults = _sqlDao.ExecuteQueryProcedure(sqlOperation);
+
+            if (lstResults.Count > 0)
+            {
+
+                foreach (var row in lstResults)
+                {
+                    var user = BuildUser(row);
+                    lstUsers.Add((T)Convert.ChangeType(user, typeof(T)));
+                }
+            }
+            return lstUsers;
+        }
 
         public override T RetrieveById<T>(int id)
         {
-            var op = new SqlOperation("RET_USER_BY_ID_PR");
-            op.AddIntParam("P_Id", id);
+            var sqlOperation = new SqlOperation() { ProcedureName = "RET_USER_BY_ID_PR" };
 
-            var rows = Dao.ExecuteQueryProcedure(op);
-            if (rows.Count == 0)
-                return default;
+            sqlOperation.AddIntParam("P_Id", id);
 
-            return (T)Convert.ChangeType(BuildUser(rows[0]), typeof(T));
-        }
+            var lstResult = _sqlDao.ExecuteQueryProcedure(sqlOperation);
 
-        public override IList<T> RetrieveAll<T>()
-        {
-            var list = new List<T>();
-            var op = new SqlOperation("RET_ALL_USER_PR");
-            var rows = Dao.ExecuteQueryProcedure(op);
-
-            foreach (var row in rows)
+            if (lstResult.Count > 0)
             {
-                list.Add((T)Convert.ChangeType(BuildUser(row), typeof(T)));
+                var row = lstResult[0];
+                var user = BuildUser(row);
+                return (T)Convert.ChangeType(user, typeof(T));
             }
 
-            return list;
+            return default(T);
         }
 
-        private static User BuildUser(Dictionary<string, object> row) => new()
+        public T RetrieveByUserCode<T>(User user)
         {
-            Id = Convert.ToInt32(row["Id"]),
-            Created = Convert.ToDateTime(row["Created"]),
-            UserCode = row["UserCode"]?.ToString(),
-            Name = row["Name"]?.ToString(),
-            Email = row["Email"]?.ToString(),
-            Password = row["Password"]?.ToString(),
-            BirthDate = Convert.ToDateTime(row["BirthDate"]),
-            Status = row["Status"]?.ToString()
-        };
+            var sqlOperation = new SqlOperation() { ProcedureName = "RET_USER_BY_CODE_PR" };
+            sqlOperation.AddStringParameter("P_UserCode", user.UserCode);
+
+            var lstResult = _sqlDao.ExecuteQueryProcedure(sqlOperation);
+
+            if (lstResult.Count > 0)
+            {
+                var row = lstResult[0];
+                user = BuildUser(row);
+                return (T)Convert.ChangeType(user, typeof(T));
+            }
+            return default(T);
+        }
+
+        public T RetrieveByEmail<T>(User user)
+        {
+            var sqlOperation = new SqlOperation() { ProcedureName = "RET_USER_BY_EMAIL_PR" };
+            sqlOperation.AddStringParameter("P_Email", user.Email);
+
+            var lstResult = _sqlDao.ExecuteQueryProcedure(sqlOperation);
+
+            if (lstResult.Count > 0)
+            {
+                var row = lstResult[0];
+                user = BuildUser(row);
+                return (T)Convert.ChangeType(user, typeof(T));
+            }
+            return default(T);
+        }
+
+        public override void Update(BaseDTO baseDTO)
+        {
+            var user = baseDTO as User;
+            var sqlOperation = new SqlOperation { ProcedureName = "UPD_USER_PR" };
+
+            sqlOperation.AddIntParam("P_Id", user.Id);
+            sqlOperation.AddStringParameter("P_UserCode", user.UserCode);
+            sqlOperation.AddStringParameter("P_Name", user.Name);
+            sqlOperation.AddStringParameter("P_Email", user.Email);
+            sqlOperation.AddStringParameter("P_Password", user.Password);
+            sqlOperation.AddDateTimeParam("P_BirthDate", user.BirthDate);
+            sqlOperation.AddStringParameter("P_Status", user.Status);
+
+            _sqlDao.ExecuteProcedure(sqlOperation);
+        }
+
+        public override void Delete(BaseDTO baseDTO)
+        {
+            var user = baseDTO as User;
+            var sqlOperation = new SqlOperation { ProcedureName = "DEL_USER_PR" };
+
+            sqlOperation.AddIntParam("P_Id", user.Id);
+            _sqlDao.ExecuteProcedure(sqlOperation);
+        }
+
+        public override T Retrieve<T>()
+        {
+            throw new NotImplementedException();
+        }
+
+
+        // Metodo que convierte el diccionario en un usuario
+        private User BuildUser(Dictionary<string, object> row)
+        {
+            var user = new User()
+            {
+                Id = (int)row["Id"],
+                Created = (DateTime)row["Created"],
+                //Updated = (DateTime)row["Updated"],
+                UserCode = (string)row["UserCode"],
+                Name = (string)row["Name"],
+                Email = (string)row["Email"],
+                Password = (string)row["Password"],
+                BirthDate = (DateTime)row["BirthDate"],
+                Status = (string)row["Status"]
+            };
+            return user;
+        }
+
     }
 }

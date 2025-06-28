@@ -12,8 +12,8 @@ namespace CoreApp
 {
     public class EmailManager : BaseManager
     {
-        private readonly string apiKey = "TU_SENDGRID_API_KEY";      // ← aquí
-        private readonly string fromEmail = "no-reply@cenfocinemas.com";
+        private readonly string apiKey = "API_Key";
+        private readonly string fromEmail = "gvalverdem@ucenfotec.ac.cr";
         private readonly string fromName = "CenfoCinemas";
 
         public async Task SendWelcomeEmail(string email, string name)

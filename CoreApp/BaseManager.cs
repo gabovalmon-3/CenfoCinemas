@@ -11,7 +11,7 @@ namespace CoreApp
     {
         protected void ManageException(Exception exception)
         {
-            // Carpeta y archivo de log dentro del directorio donde corre la app
+
             var logDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
             var logFile = Path.Combine(logDir, "errors.log");
 
@@ -23,10 +23,10 @@ namespace CoreApp
             }
             catch
             {
-                // Si falla el registro de log, no interrumpe la aplicación
+
             }
 
-            // Excepción para no exponer detalles internos
+
             throw new ApplicationException("Se produjo un problema interno. Por favor, inténtalo de nuevo más tarde.");
         }
     }

@@ -2,82 +2,134 @@ using DataAccess.DAO;
 using DTOs;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace DataAccess.CRUD
 {
-    public sealed class MovieCrudFactory : CrudFactory
+    public class MovieCrudFactory : CrudFactory
     {
-        #region Create / Delete / Update
-
-        public override void Create(BaseDTO baseDto)
+        public MovieCrudFactory()
         {
-            if (baseDto is not Movie movie)
-                throw new ArgumentException("Se esperaba un Movie", nameof(baseDto));
-
-            var op = new SqlOperation("CRE_MOVIE_PR");
-            op.AddStringParameter("P_Title", movie.Title);
-            op.AddStringParameter("P_Description", movie.Description);
-            op.AddDateTimeParam("P_ReleaseDate", movie.ReleaseDate);
-            op.AddStringParameter("P_Genre", movie.Genre);
-            op.AddStringParameter("P_Director", movie.Director);
-
-            Dao.ExecuteProcedure(op);
+            _sqlDao = SqlDao.GetInstance();
         }
 
-        public override void Delete(BaseDTO baseDto)
-            => throw new NotImplementedException();
+        public override void Create(BaseDTO baseDTO)
+        {
+            var movie = baseDTO as Movie;
 
-        public override void Update(BaseDTO baseDto)
-            => throw new NotImplementedException();
+            var sqlOperation = new SqlOperation() { ProcedureName = "CRE_MOVIE_PR" };
 
-        #endregion
+            sqlOperation.AddStringParameter("P_Title", movie.Title);
+            sqlOperation.AddStringParameter("P_Description", movie.Description);
+            sqlOperation.AddDateTimeParam("P_ReleaseDate", movie.ReleaseDate);
+            sqlOperation.AddStringParameter("P_Genre", movie.Genre);
+            sqlOperation.AddStringParameter("P_Director", movie.Director);
 
-        #region Retrieves
+            _sqlDao.ExecuteProcedure(sqlOperation);
+        }
 
-        public override T Retrieve<T>()
-            => throw new NotImplementedException();
+        public override List<T> RetrieveAll<T>()
+        {
+            var lstMovies = new List<T>();
+
+            var sqlOperation = new SqlOperation() { ProcedureName = "RET_ALL_MOVIE_PR" };
+
+            var lstResults = _sqlDao.ExecuteQueryProcedure(sqlOperation);
+
+            if (lstResults.Count > 0)
+            {
+                foreach (var row in lstResults)
+                {
+                    var movie = BuildMovie(row);
+                    lstMovies.Add((T)Convert.ChangeType(movie, typeof(T)));
+                }
+            }
+            return lstMovies;
+        }
 
         public override T RetrieveById<T>(int id)
         {
-            var op = new SqlOperation("RET_MOVIE_BY_ID_PR");
-            op.AddIntParam("P_Id", id);
+            var sqlOperation = new SqlOperation() { ProcedureName = "RET_MOVIE_BY_ID_PR" };
 
-            var rows = Dao.ExecuteQueryProcedure(op);
-            if (rows.Count == 0)
-                return default;
+            sqlOperation.AddIntParam("P_Id", id);
 
-            return (T)Convert.ChangeType(BuildMovie(rows[0]), typeof(T));
-        }
+            var lstResults = _sqlDao.ExecuteQueryProcedure(sqlOperation);
 
-        public override IList<T> RetrieveAll<T>()
-        {
-            var list = new List<T>();
-            var op = new SqlOperation("RET_ALL_MOVIE_PR");
-            var rows = Dao.ExecuteQueryProcedure(op);
-
-            foreach (var row in rows)
+            if (lstResults.Count > 0)
             {
-                list.Add((T)Convert.ChangeType(BuildMovie(row), typeof(T)));
+                var row = lstResults[0];
+                var movie = BuildMovie(row);
+                return (T)Convert.ChangeType(movie, typeof(T));
             }
 
-            return list;
+            return default(T);
         }
 
-        #endregion
-
-        #region Helper
-
-        private static Movie BuildMovie(Dictionary<string, object> row) => new()
+        public T RetrieveByTitle<T>(Movie movie)
         {
-            Id = Convert.ToInt32(row["Id"]),
-            Created = Convert.ToDateTime(row["Created"]),
-            Title = row["Title"]?.ToString(),
-            Description = row["Description"]?.ToString(),
-            ReleaseDate = Convert.ToDateTime(row["ReleaseDate"]),
-            Genre = row["Genre"]?.ToString(),
-            Director = row["Director"]?.ToString()
-        };
+            var sqlOperation = new SqlOperation() { ProcedureName = "RET_MOVIE_BY_TITLE_PR" };
 
-        #endregion
+            sqlOperation.AddStringParameter("P_Title", movie.Title);
+
+            var lstResults = _sqlDao.ExecuteQueryProcedure(sqlOperation);
+
+            if (lstResults.Count > 0)
+            {
+                var row = lstResults[0];
+                movie = BuildMovie(row);
+                return (T)Convert.ChangeType(movie, typeof(T));
+            }
+
+            return default(T);
+        }
+
+        public override void Update(BaseDTO baseDTO)
+        {
+            var movie = baseDTO as Movie;
+            var sqlOperation = new SqlOperation() { ProcedureName = "UPD_MOVIE_PR" };
+
+            sqlOperation.AddIntParam("P_Id", movie.Id);
+            sqlOperation.AddStringParameter("P_Title", movie.Title);
+            sqlOperation.AddStringParameter("P_Description", movie.Description);
+            sqlOperation.AddDateTimeParam("P_ReleaseDate", movie.ReleaseDate);
+            sqlOperation.AddStringParameter("P_Genre", movie.Genre);
+            sqlOperation.AddStringParameter("P_Director", movie.Director);
+
+            _sqlDao.ExecuteProcedure(sqlOperation);
+        }
+
+        public override void Delete(BaseDTO baseDTO)
+        {
+            var movie = baseDTO as Movie;
+            var sqlOperation = new SqlOperation() { ProcedureName = "DEL_MOVIE_PR" };
+
+            sqlOperation.AddIntParam("P_Id", movie.Id);
+            _sqlDao.ExecuteProcedure(sqlOperation);
+        }
+
+        public override T Retrieve<T>()
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+        private Movie BuildMovie(Dictionary<string, object> row)
+        {
+            var movie = new Movie()
+            {
+                Id = (int)row["Id"],
+                Created = (DateTime)row["Created"],
+                Title = (string)row["Title"],
+                Description = (string)row["Description"],
+                ReleaseDate = (DateTime)row["ReleaseDate"],
+                Genre = (string)row["Genre"],
+                Director = (string)row["Director"]
+            };
+            return movie;
+        }
     }
 }
