@@ -2,6 +2,8 @@ function ControlActions() {
 	//Ruta base del API
 	this.URL_API = "https://localhost:7191/api/";
 
+	this.URL_API = "https://cenfocinemas-gvalverdem-ghf5gag9f3eza3gx.eastus2-01.azurewebsites.net/api/";
+
 	this.GetUrlApiService = function (service) {
 		return this.URL_API + service;
 	}
